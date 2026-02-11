@@ -623,22 +623,25 @@ function updateHistogram(values, lsl, usl, decimals, minVal, maxVal, forceRange)
     const maxPDF = normalPDF(meanVal, meanVal, stdDevOverall);
     const curveScale = (maxBinHeight * 0.7) / maxPDF;
 
-    // Generate normal distribution curve
-    const curvePoints = 300;
-    const curveData = [];
-    const curveRange = Math.max(range, 6 * stdDevOverall);
-    const curveMin = meanVal - curveRange * 0.5;
-    const curveMax = meanVal + curveRange * 0.5;
-    
-    for (let i = 0; i < curvePoints; i++) {
-        const x = curveMin + (i / curvePoints) * (curveMax - curveMin);
-        const pdf = normalPDF(x, meanVal, stdDevOverall);
-        curveData.push({x: x, y: pdf * curveScale});
-    }
+    // Generate normal distribution curve aligned with bin centers
+    const curveData = binEdges.slice(0, -1).map((edge, i) => {
+        const mid = edge + binWidth / 2;
+        const pdf = normalPDF(mid, meanVal, stdDevOverall);
+        return pdf * curveScale;
+    });
 
-    // Create datasets array
+    // Create reference lines data
+    const createLineData = (value) => {
+        if (isNaN(value)) return null;
+        return binEdges.slice(0, -1).map(edge => {
+            const mid = edge + binWidth / 2;
+            const diff = Math.abs(mid - value);
+            // Mark position of reference line
+            return diff < binWidth * 0.1 ? maxBinHeight * 0.95 : null;
+        });
+    };
+
     const datasets = [
-        // Main histogram bars
         {
             label: 'Frequency',
             data: bins,
@@ -647,83 +650,90 @@ function updateHistogram(values, lsl, usl, decimals, minVal, maxVal, forceRange)
             borderWidth: 1,
             barPercentage: 0.85,
             categoryPercentage: 0.9,
-            yAxisID: 'y',
-            order: 10
+            type: 'bar'
+        },
+        {
+            label: 'Normal Distribution',
+            data: curveData,
+            borderColor: '#e74c3c',
+            borderWidth: 2.5,
+            backgroundColor: 'rgba(231, 76, 60, 0.05)',
+            fill: false,
+            pointRadius: 0,
+            tension: 0.3,
+            type: 'line'
         }
     ];
 
-    // Add normal distribution curve
+    // Add Mean line
     datasets.push({
-        label: 'Normal Distribution',
-        type: 'scatter',
-        data: curveData,
-        showLine: true,
-        borderColor: '#e74c3c',
-        borderWidth: 3,
-        backgroundColor: 'rgba(231, 76, 60, 0.1)',
-        fill: false,
-        pointRadius: 0,
-        tension: 0.4,
-        spanGaps: true,
-        yAxisID: 'y'
-    });
-
-    // Add vertical reference lines
-    const lineConfigs = [];
-    
-    if (hasLsl && !isNaN(lsl)) {
-        lineConfigs.push({
-            x: lsl,
-            label: `LSL: ${formatNumber(lsl, decimals)}`,
-            color: '#e74c3c',
-            dash: [8, 4]
-        });
-    }
-    
-    if (hasUsl && !isNaN(usl)) {
-        lineConfigs.push({
-            x: usl,
-            label: `USL: ${formatNumber(usl, decimals)}`,
-            color: '#e74c3c',
-            dash: [8, 4]
-        });
-    }
-    
-    if (specType === 'bilateral') {
-        lineConfigs.push({
-            x: target,
-            label: `Target: ${formatNumber(target, decimals)}`,
-            color: '#f39c12',
-            dash: [6, 3]
-        });
-    }
-    
-    lineConfigs.push({
-        x: meanVal,
         label: `Mean: ${formatNumber(meanVal, decimals)}`,
-        color: '#20c997',
-        dash: [5, 5]
+        data: labels.map(label => {
+            const val = parseFloat(label);
+            const diff = Math.abs(val * 1 - meanVal);
+            return diff < binWidth * 0.15 ? maxBinHeight * 0.88 : null;
+        }),
+        borderColor: '#20c997',
+        borderWidth: 2.5,
+        borderDash: [5, 5],
+        pointRadius: 0,
+        fill: false,
+        type: 'line'
     });
 
-    // Add line datasets
-    lineConfigs.forEach(lineConfig => {
+    // Add LSL line
+    if (hasLsl && !isNaN(lsl)) {
         datasets.push({
-            label: lineConfig.label,
-            type: 'line',
-            borderColor: lineConfig.color,
+            label: `LSL: ${formatNumber(lsl, decimals)}`,
+            data: labels.map(label => {
+                const val = parseFloat(label);
+                const diff = Math.abs(val * 1 - lsl);
+                return diff < binWidth * 0.15 ? maxBinHeight * 0.82 : null;
+            }),
+            borderColor: '#e74c3c',
             borderWidth: 2.5,
-            borderDash: lineConfig.dash,
-            data: [
-                {x: lineConfig.x, y: 0},
-                {x: lineConfig.x, y: maxBinHeight * 1.05}
-            ],
+            borderDash: [8, 4],
             pointRadius: 0,
             fill: false,
-            tension: 0,
-            yAxisID: 'y',
-            tooltip: {enabled: false}
+            type: 'line'
         });
-    });
+    }
+
+    // Add USL line
+    if (hasUsl && !isNaN(usl)) {
+        datasets.push({
+            label: `USL: ${formatNumber(usl, decimals)}`,
+            data: labels.map(label => {
+                const val = parseFloat(label);
+                const diff = Math.abs(val * 1 - usl);
+                return diff < binWidth * 0.15 ? maxBinHeight * 0.76 : null;
+            }),
+            borderColor: '#e74c3c',
+            borderWidth: 2.5,
+            borderDash: [8, 4],
+            pointRadius: 0,
+            fill: false,
+            type: 'line'
+        });
+    }
+
+    // Add Target line
+    if (specType === 'bilateral') {
+        datasets.push({
+            label: `Target: ${formatNumber(target, decimals)}`,
+            data: labels.map(label => {
+                const val = parseFloat(label);
+                const diff = Math.abs(val * 1 - target);
+                return diff < binWidth * 0.15 ? maxBinHeight * 0.70 : null;
+            }),
+            borderColor: '#f39c12',
+            borderWidth: 2,
+            borderDash: [6, 3],
+            pointRadius: 0,
+            fill: false,
+            type: 'line'
+        });
+    }
 
     histogramChart = new Chart(ctx, {
         type: 'bar',
@@ -746,16 +756,7 @@ function updateHistogram(values, lsl, usl, decimals, minVal, maxVal, forceRange)
                     labels: {
                         font: { size: 10, weight: 'bold' },
                         usePointStyle: true,
-                        padding: 12,
-                        generateLabels: function(chart) {
-                            return chart.data.datasets.map((ds, i) => ({
-                                text: ds.label,
-                                fillStyle: ds.borderColor || ds.backgroundColor,
-                                strokeStyle: ds.borderColor,
-                                hidden: false,
-                                index: i
-                            }));
-                        }
+                        padding: 12
                     }
                 },
                 tooltip: {
@@ -770,34 +771,24 @@ function updateHistogram(values, lsl, usl, decimals, minVal, maxVal, forceRange)
                     padding: 10,
                     callbacks: {
                         title: function(context) {
-                            if (context[0].dataset.type === 'scatter' || context[0].dataset.type === 'line') {
-                                return context[0].dataset.label;
-                            }
                             const idx = context[0].dataIndex;
                             const lower = binEdges[idx];
                             const upper = binEdges[idx + 1];
                             return `Range: ${formatNumber(lower, decimals)} - ${formatNumber(upper, decimals)}`;
                         },
                         label: function(context) {
-                            const ds = context.dataset;
-                            if (ds.type === 'line' && Array.isArray(ds.data)) {
-                                return ds.label || '';
+                            if (!context.dataset.type || context.dataset.type === 'bar') {
+                                const value = context.parsed.y;
+                                const pct = ((value / n) * 100).toFixed(1);
+                                return `Count: ${value} (${pct}%)`;
                             }
-                            if (ds.type && ds.type !== 'bar') {
-                                return '';
-                            }
-                            const value = context.parsed.y;
-                            const pct = ((value / n) * 100).toFixed(1);
-                            return `Count: ${value} (${pct}%)`;
+                            return context.dataset.label || '';
                         }
                     }
                 }
             },
             scales: {
                 x: {
-                    type: 'linear',
-                    min: dataMin - binWidth * 0.5,
-                    max: dataMax + binWidth * 0.5,
                     title: {
                         display: true,
                         text: 'Measured Value',
