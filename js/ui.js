@@ -446,20 +446,6 @@ function createRightColumn() {
     
     rightColumn.innerHTML = `
         <div class="card">
-            <div class="card-header">
-                <i class="fas fa-globe"></i> Language / Limbă
-            </div>
-            <div class="card-body">
-                <div class="btn-group w-100" role="group">
-                    <input type="radio" class="btn-check" name="language" id="langEn" value="en" checked>
-                    <label class="btn btn-outline-primary" for="langEn">English</label>
-                    <input type="radio" class="btn-check" name="language" id="langRo" value="ro">
-                    <label class="btn btn-outline-primary" for="langRo">Română</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-chart-histogram"></i> Distribution Histogram</span>
                 <button class="btn btn-sm btn-outline-light" onclick="toggleHistogramFullscreen()" title="Toggle fullscreen">
@@ -472,8 +458,11 @@ function createRightColumn() {
                 </div>
                 <div class="mt-2 text-center">
                     <small class="text-muted">
-                        <span class="badge bg-info me-1">▇</span> Frequency &nbsp;&nbsp;
-                        <span class="badge bg-danger me-1">—</span> Normal Distribution (Minitab Style)
+                        <span class="badge bg-success me-1">—</span> Mean &nbsp;&nbsp;
+                        <span class="badge bg-danger me-1">—</span> LSL/USL &nbsp;&nbsp;
+                        <span class="badge bg-warning me-1">—</span> Target &nbsp;&nbsp;
+                        <span class="badge bg-primary me-1">▇</span> Data &nbsp;&nbsp;
+                        <span class="badge bg-danger me-1">—</span> Normal Curve
                     </small>
                 </div>
             </div>
@@ -491,11 +480,35 @@ function createRightColumn() {
                     </label>
                 </div>
 
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Cpk Tolerance:</label>
+                        <select class="form-select" id="tolerance">
+                            <option>0.001</option>
+                            <option>0.005</option>
+                            <option selected>0.01</option>
+                            <option>0.05</option>
+                            <option>0.1</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Max Iterations:</label>
+                        <input type="text" class="form-control" id="maxIterations" autocomplete="off">
+                    </div>
+                </div>
+
                 <div class="form-check form-switch mb-3">
                     <input class="form-check-input" type="checkbox" id="autoAdjust" checked>
                     <label class="form-check-label" for="autoAdjust">
                         Auto-adjust to achieve target Cpk
                     </label>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Adjustment Factor:</label>
+                        <input type="text" class="form-control" id="adjFactor" autocomplete="off">
+                    </div>
                 </div>
 
                 <div class="slider-container mb-3">
@@ -509,8 +522,6 @@ function createRightColumn() {
                 </div>
             </div>
         </div>
-    `;
-}
     `;
 }
 
