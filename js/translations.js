@@ -335,7 +335,7 @@ const translations = {
 };
 
 // ========== LANGUAGE MANAGEMENT ==========
-let currentLanguage = localStorage.getItem('capabilityProLanguage') || 'ro';
+let currentLanguage = localStorage.getItem('capabilityProLanguage') || 'en';
 
 function setLanguage(lang) {
     if (translations[lang]) {
