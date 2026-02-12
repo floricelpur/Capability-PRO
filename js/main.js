@@ -7,8 +7,10 @@ let histogramChart = null;
 document.addEventListener('DOMContentLoaded', function() {
     initializeC4PrimeTable();
     initializeUI();
+    setDefaultValues();
     setupEventListeners();
     updateSpecTypeUI();
+    updateLanguageDisplay();
     
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
@@ -22,7 +24,55 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// ========== SET DEFAULT VALUES ==========
+function setDefaultValues() {
+    const defaults = {
+        targetCpk: '1.67',
+        sampleSize: '125',
+        maxIterations: '1000',
+        adjFactor: '0.95',
+        lsl: '0',
+        usl: '10',
+        minVal: '-5',
+        maxVal: '15',
+        decimals: '3',
+        tolerance: '0.05',
+        subgroupSize: '5'
+    };
+    
+    for (const [id, value] of Object.entries(defaults)) {
+        const element = document.getElementById(id);
+        if (element && !element.value) {
+            element.value = value;
+        }
+    }
+}
+
+function updateLanguageDisplay() {
+    document.getElementById('navTitle').textContent = t('appTitle');
+    document.getElementById('versionText').textContent = t('versionText');
+}
+
+
 // ========== GENERATION FUNCTIONS ==========
+
+// Check if target Cpk is achievable given the constraints
+function isCpkAchievable(targetCpk, lsl, usl, minVal, maxVal, specType) {
+    const rangeWidth = maxVal - minVal;
+    
+    if (specType === 'bilateral') {
+        const specRange = usl - lsl;
+        // Minimum achievable Cpk with given min/max range
+        const minAchievableCpk = specRange / (6 * rangeWidth);
+        return targetCpk <= (minAchievableCpk + 0.1); // Add small tolerance
+    } else if (specType === 'unilateral_lsl' || specType === 'unilateral_usl') {
+        // For unilateral, the achievable Cpk depends on the half-range
+        const minAchievableCpk = rangeWidth / (6 * rangeWidth);
+        return targetCpk <= (minAchievableCpk + 0.1);
+    }
+    return true;
+}
+
 async function generateValues() {
     try {
         const specType = getInputValue('specType');
@@ -44,12 +94,23 @@ async function generateValues() {
 
         if (isNaN(lsl) || isNaN(usl) || isNaN(targetCpk) || isNaN(sampleSize) ||
             isNaN(minVal) || isNaN(maxVal) || minVal >= maxVal) {
-            alert('Please enter valid numbers for all required fields.');
+            alert(t('generationErrorValidation'));
             return;
         }
 
         if (specType === 'bilateral' && lsl >= usl) {
-            alert('LSL must be less than USL for bilateral specification.');
+            alert(t('bilateralError'));
+            return;
+        }
+        
+        // Check if Cpk is achievable
+        if (!isCpkAchievable(targetCpk, lsl, usl, minVal, maxVal, specType)) {
+            const rangeWidth = maxVal - minVal;
+            const errorMsg = t('cpkLimitError')
+                .replace('{min}', formatNumber(minVal, decimals))
+                .replace('{max}', formatNumber(maxVal, decimals))
+                .replace('{range}', formatNumber(rangeWidth, decimals));
+            alert(errorMsg);
             return;
         }
 
@@ -59,8 +120,8 @@ async function generateValues() {
         updateProgress(10);
 
         const statusDisplay = document.getElementById('statusDisplay');
-        const modeText = forceRange ? "🔒 RESTRICTED MODE" : "⚡ FREE MODE";
-        statusDisplay.textContent = `${modeText}\nGenerating ${sampleSize} values\nTarget Cpk: ${targetCpk}\nSearching...`;
+        const modeText = forceRange ? t('restrictedMode') : t('freeMode');
+        statusDisplay.textContent = `${modeText}\n${t('generating')} ${sampleSize} ${t('searching')}...`;
 
         const rangeWidth = maxVal - minVal;
         const currentMean = minVal + (rangeWidth * centerPercent / 100);
@@ -94,7 +155,7 @@ async function generateValues() {
 
             if (currentDiff <= tolerance) {
                 foundTarget = true;
-                statusDisplay.textContent = `${modeText}\n✅ Target Cpk achieved after ${attempt + 1} attempts\nCurrent Cpk: ${currentCpk.toFixed(3)} (Target: ${targetCpk})`;
+                statusDisplay.textContent = `${modeText}\n✅ ${t('targetAchieved')} ${attempt + 1} ${t('attempts')}\nCurrent Cpk: ${currentCpk.toFixed(3)} (Target: ${targetCpk})`;
                 break;
             }
 
@@ -114,13 +175,13 @@ async function generateValues() {
             }
 
             if (attempt % 10 === 0) {
-                statusDisplay.textContent = `${modeText}\nAttempt ${attempt + 1}/${maxAttempts}\nCurrent Cpk: ${currentCpk.toFixed(3)} (Target: ${targetCpk})\nBest Cpk: ${bestCpk.toFixed(3)}, Diff: ${bestDiff.toFixed(3)}`;
+                statusDisplay.textContent = `${modeText}\nAttempt ${attempt + 1}/${maxAttempts}\nCurrent Cpk: ${currentCpk.toFixed(3)} (Target: ${targetCpk})\n${t('bestCpk')}: ${bestCpk.toFixed(3)}, Diff: ${bestDiff.toFixed(3)}`;
                 await delay(10);
             }
         }
 
         if (stopGenerationFlag) {
-            statusDisplay.textContent = "Generation stopped by user.";
+            statusDisplay.textContent = t('stoppedByUser');
             updateProgress(0);
             return;
         }
@@ -161,31 +222,31 @@ async function generateValues() {
         const finalMin = Math.min(...generatedValues);
         const finalMax = Math.max(...generatedValues);
 
-        let statusMsg = `✅ Generated ${sampleSize} values`;
+        let statusMsg = `✅ ${t('generationComplete')}`;
         if (forceRange) {
             if (finalMin >= minVal && finalMax <= maxVal) {
-                statusMsg += " (all in range)";
+                statusMsg += ` (${t('allInRange')})`;
             } else {
-                statusMsg += " ⚠️ (some outside range - clipping applied)";
+                statusMsg += ` ⚠️ (${t('someOutsideRange')})`;
             }
         } else {
             const outOfRange = generatedValues.filter(v => v < minVal || v > maxVal).length;
             if (outOfRange > 0) {
-                statusMsg += ` (${outOfRange} values outside range)`;
+                statusMsg += ` (${outOfRange} ${t('valuesOutsideRange')})`;
             }
         }
 
         if (foundTarget) {
-            statusMsg += ` | ✅ Target Cpk achieved: ${finalCpk.toFixed(3)}`;
+            statusMsg += ` | ✅ ${t('targetCpkAchieved')}: ${finalCpk.toFixed(3)}`;
         } else {
-            statusMsg += ` | Best Cpk: ${finalCpk.toFixed(3)} (Target: ${targetCpk}, Diff: ${Math.abs(finalCpk - targetCpk).toFixed(3)})`;
+            statusMsg += ` | ${t('bestCpk')}: ${finalCpk.toFixed(3)} (Target: ${targetCpk}, Diff: ${Math.abs(finalCpk - targetCpk).toFixed(3)})`;
         }
 
-        statusDisplay.textContent = `✅ Generation complete!\n${statusMsg}\nMean: ${formatNumber(meanVal, decimals + 1)} | Sigma: ${formatNumber(currentSigma, decimals + 3)}`;
+        statusDisplay.textContent = `✅ ${t('generationComplete')}\n${statusMsg}\n${t('mean')}: ${formatNumber(meanVal, decimals + 1)} | ${t('sigma')}: ${formatNumber(currentSigma, decimals + 3)}`;
 
     } catch (error) {
         console.error('Generation error:', error);
-        alert(`Generation failed: ${error.message}`);
+        alert(`${t('generationError')}: ${error.message}`);
         document.getElementById('statusDisplay').textContent = `Error: ${error.message}`;
     } finally {
         setButtonState('generateBtn', false);

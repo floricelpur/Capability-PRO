@@ -87,6 +87,7 @@ function initializeUI() {
     createLeftColumn();
     createCenterColumn();
     createRightColumn();
+    setupLanguageSelector();
 }
 
 function createLeftColumn() {
@@ -95,35 +96,35 @@ function createLeftColumn() {
     leftColumn.innerHTML = `
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-sliders-h"></i> Specification Type
+                <i class="fas fa-sliders-h"></i> <span id="specTypeHeader">${t('specTypeHeader')}</span>
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label class="form-label">Type:</label>
+                    <label class="form-label" id="specTypeLabel">${t('specTypeLabel')}</label>
                     <select class="form-select" id="specType">
-                        <option value="bilateral">Bilateral (LSL and USL)</option>
-                        <option value="unilateral_lsl">Unilateral LSL only</option>
-                        <option value="unilateral_usl">Unilateral USL only</option>
+                        <option value="bilateral">${t('bilateral')}</option>
+                        <option value="unilateral_lsl">${t('unilateralLSL')}</option>
+                        <option value="unilateral_usl">${t('unilateralUSL')}</option>
                     </select>
                 </div>
                 <button class="btn btn-outline-info btn-sm w-100" onclick="showSpecTypeInfo()">
-                    <i class="fas fa-info-circle"></i> What is Specification Type?
+                    <i class="fas fa-info-circle"></i> <span>${t('whatIsSpecType')}</span>
                 </button>
             </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-ruler-combined"></i> Specification Limits
+                <i class="fas fa-ruler-combined"></i> <span id="specLimitsHeader">${t('specLimitsHeader')}</span>
             </div>
             <div class="card-body">
                 <div class="row g-2">
                     <div class="col-6">
-                        <label class="form-label">LSL:</label>
+                        <label class="form-label">${t('lslLabel')}</label>
                         <input type="text" class="form-control" id="lsl" autocomplete="off">
                     </div>
                     <div class="col-6">
-                        <label class="form-label">USL:</label>
+                        <label class="form-label">${t('uslLabel')}</label>
                         <input type="text" class="form-control" id="usl" autocomplete="off">
                     </div>
                 </div>
@@ -132,22 +133,22 @@ function createLeftColumn() {
 
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-expand-alt"></i> Value Range Limits
+                <i class="fas fa-expand-alt"></i> <span id="valueRangeHeader">${t('valueRangeHeader')}</span>
             </div>
             <div class="card-body">
                 <div class="row g-2">
                     <div class="col-6">
-                        <label class="form-label">Min Value:</label>
+                        <label class="form-label">${t('minValLabel')}</label>
                         <input type="text" class="form-control" id="minVal" autocomplete="off">
                     </div>
                     <div class="col-6">
-                        <label class="form-label">Max Value:</label>
+                        <label class="form-label">${t('maxValLabel')}</label>
                         <input type="text" class="form-control" id="maxVal" autocomplete="off">
                     </div>
                 </div>
                 <div class="mt-2">
                     <small id="rangeInfo" class="highlight-red">
-                        <i class="fas fa-lock"></i> Values STRICTLY between Min and Max
+                        <i class="fas fa-lock"></i> <span>${t('rangeInfo')}</span>
                     </small>
                 </div>
             </div>
@@ -155,16 +156,16 @@ function createLeftColumn() {
 
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-cog"></i> Setup Parameters
+                <i class="fas fa-cog"></i> <span id="setupParamsHeader">${t('setupParamsHeader')}</span>
             </div>
             <div class="card-body">
                 <div class="row g-2 mb-2">
                     <div class="col-6">
-                        <label class="form-label">Target Cpk:</label>
+                        <label class="form-label">${t('targetCpkLabel')}</label>
                         <input type="text" class="form-control" id="targetCpk" autocomplete="off">
                     </div>
                     <div class="col-6">
-                        <label class="form-label">Decimals:</label>
+                        <label class="form-label">${t('decimalsLabel')}</label>
                         <select class="form-select" id="decimals">
                             <option>1</option>
                             <option>2</option>
@@ -177,11 +178,11 @@ function createLeftColumn() {
 
                 <div class="row g-2 mb-2">
                     <div class="col-6">
-                        <label class="form-label">Sample Size:</label>
+                        <label class="form-label">${t('sampleSizeLabel')}</label>
                         <input type="text" class="form-control" id="sampleSize" autocomplete="off">
                     </div>
                     <div class="col-6">
-                        <label class="form-label">Subgroup Size:</label>
+                        <label class="form-label">${t('subgroupSizeLabel')}</label>
                         <select class="form-select" id="subgroupSize">
                             <option>1</option>
                             <option>2</option>
@@ -197,9 +198,28 @@ function createLeftColumn() {
                     </div>
                 </div>
 
-                <div class="slider-container mb-2">
-                    <span class="slider-label">Sigma %:</span>
-                    <input type="range" class="form-range" id="sigmaSlider" min="5" max="80" value="20">
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <label class="form-label">${t('maxIterationsLabel')}</label>
+                        <input type="text" class="form-control" id="maxIterations" autocomplete="off">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">${t('adjustmentFactorLabel')}</label>
+                        <input type="text" class="form-control" id="adjFactor" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <label class="form-label">${t('toleranceLabel')}</label>
+                        <input type="text" class="form-control" id="tolerance" autocomplete="off">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">${t('sigmaLabel')}</label>
+                        <input type="range" class="form-range" id="sigmaSlider" min="5" max="80" value="20" style="margin-top: 8px;">
+                    </div>
+                </div>
+                <div class="text-center">
                     <span id="sigmaValue" class="badge bg-secondary">20%</span>
                 </div>
             </div>
@@ -217,10 +237,10 @@ function createLeftColumn() {
             <div class="card-body">
                 <div class="d-grid gap-2">
                     <button class="btn btn-success btn-lg" id="generateBtn" onclick="generateValues()">
-                        <i class="fas fa-rocket"></i> GENERATE VALUES
+                        <i class="fas fa-rocket"></i> <span class="generateBtn-text">${t('generateBtn')}</span>
                     </button>
                     <button class="btn btn-danger btn-lg" id="stopBtn" onclick="stopGeneration()" disabled>
-                        <i class="fas fa-stop"></i> STOP
+                        <i class="fas fa-stop"></i> <span class="stopBtn-text">${t('stopBtn')}</span>
                     </button>
                 </div>
             </div>
@@ -524,7 +544,7 @@ function setupEventListeners() {
         if (e.target.id === 'forceRange') {
             const rangeInfo = document.getElementById('rangeInfo');
             if (e.target.checked) {
-                rangeInfo.innerHTML = '<i class="fas fa-lock"></i> Values STRICTLY between Min and Max';
+                rangeInfo.innerHTML = '<i class="fas fa-lock"></i> ' + t('rangeInfo');
                 rangeInfo.className = 'highlight-red';
             } else {
                 rangeInfo.innerHTML = '<i class="fas fa-unlock"></i> Values can be outside Min-Max';
@@ -532,9 +552,23 @@ function setupEventListeners() {
             }
         } else if (e.target.id === 'specType') {
             updateSpecTypeUI();
+        } else if (e.target.name === 'language') {
+            setLanguage(e.target.value);
+            location.reload();
         }
     });
 }
+
+function setupLanguageSelector() {
+    const currentLang = getLanguage();
+    const langButtons = document.querySelectorAll('input[name="language"]');
+    langButtons.forEach(btn => {
+        if (btn.value === currentLang) {
+            btn.checked = true;
+        }
+    });
+}
+
 
 function updateSpecTypeUI() {
     const specType = document.getElementById('specType').value;
@@ -595,9 +629,6 @@ function updateHistogram(values, lsl, usl, decimals, minVal, maxVal, forceRange)
     const meanVal = values.reduce((a, b) => a + b, 0) / n;
     const [stdDevOverall, stdDevWithin] = calculateBothStandardDeviations(values, 5);
     const specType = getInputValue('specType');
-    const hasLsl = specType !== 'unilateral_usl';
-    const hasUsl = specType !== 'unilateral_lsl';
-    const target = specType === 'bilateral' ? (lsl + usl) / 2 : meanVal;
 
     const binCount = Math.max(8, Math.min(20, Math.ceil(Math.log2(n)) + 1));
     const dataMin = Math.min(...values);
@@ -621,119 +652,49 @@ function updateHistogram(values, lsl, usl, decimals, minVal, maxVal, forceRange)
 
     const maxBinHeight = Math.max(...bins);
     const maxPDF = normalPDF(meanVal, meanVal, stdDevOverall);
-    const curveScale = (maxBinHeight * 0.7) / maxPDF;
+    const curveScale = (maxBinHeight * 0.85) / maxPDF;
 
-    // Generate normal distribution curve aligned with bin centers
-    const curveData = binEdges.slice(0, -1).map((edge, i) => {
-        const mid = edge + binWidth / 2;
-        const pdf = normalPDF(mid, meanVal, stdDevOverall);
-        return pdf * curveScale;
-    });
-
-    // Create reference lines data
-    const createLineData = (value) => {
-        if (isNaN(value)) return null;
-        return binEdges.slice(0, -1).map(edge => {
-            const mid = edge + binWidth / 2;
-            const diff = Math.abs(mid - value);
-            // Mark position of reference line
-            return diff < binWidth * 0.1 ? maxBinHeight * 0.95 : null;
+    // Generate normal distribution curve with more points for smooth curve (Minitab style)
+    const curvePoints = [];
+    const step = binWidth / 3; // More points for smoother curve
+    const curveStart = dataMin - binWidth;
+    const curveEnd = dataMax + binWidth;
+    
+    for (let x = curveStart; x <= curveEnd; x += step) {
+        curvePoints.push({
+            x: x,
+            y: normalPDF(x, meanVal, stdDevOverall) * curveScale
         });
-    };
+    }
 
     const datasets = [
         {
-            label: 'Frequency',
+            label: t('frequency'),
             data: bins,
-            backgroundColor: 'rgba(77, 171, 247, 0.7)',
+            backgroundColor: 'rgba(77, 171, 247, 0.75)',
             borderColor: 'rgba(77, 171, 247, 1)',
-            borderWidth: 1,
-            barPercentage: 0.85,
-            categoryPercentage: 0.9,
+            borderWidth: 0.5,
+            barPercentage: 0.9,
+            categoryPercentage: 0.95,
             type: 'bar'
         },
         {
-            label: 'Normal Distribution',
-            data: curveData,
+            label: t('statsTitles')["Normal Distribution"] || 'Normal Distribution',
+            data: curvePoints.map(p => p.y),
             borderColor: '#e74c3c',
-            borderWidth: 2.5,
-            backgroundColor: 'rgba(231, 76, 60, 0.05)',
+            borderWidth: 3,
+            backgroundColor: 'transparent',
             fill: false,
             pointRadius: 0,
-            tension: 0.3,
-            type: 'line'
+            tension: 0.4,
+            type: 'line',
+            spanGaps: true,
+            xAxisID: 'x2'
         }
     ];
 
-    // Add Mean line
-    datasets.push({
-        label: `Mean: ${formatNumber(meanVal, decimals)}`,
-        data: labels.map(label => {
-            const val = parseFloat(label);
-            const diff = Math.abs(val * 1 - meanVal);
-            return diff < binWidth * 0.15 ? maxBinHeight * 0.88 : null;
-        }),
-        borderColor: '#20c997',
-        borderWidth: 2.5,
-        borderDash: [5, 5],
-        pointRadius: 0,
-        fill: false,
-        type: 'line'
-    });
-
-    // Add LSL line
-    if (hasLsl && !isNaN(lsl)) {
-        datasets.push({
-            label: `LSL: ${formatNumber(lsl, decimals)}`,
-            data: labels.map(label => {
-                const val = parseFloat(label);
-                const diff = Math.abs(val * 1 - lsl);
-                return diff < binWidth * 0.15 ? maxBinHeight * 0.82 : null;
-            }),
-            borderColor: '#e74c3c',
-            borderWidth: 2.5,
-            borderDash: [8, 4],
-            pointRadius: 0,
-            fill: false,
-            type: 'line'
-        });
-    }
-
-    // Add USL line
-    if (hasUsl && !isNaN(usl)) {
-        datasets.push({
-            label: `USL: ${formatNumber(usl, decimals)}`,
-            data: labels.map(label => {
-                const val = parseFloat(label);
-                const diff = Math.abs(val * 1 - usl);
-                return diff < binWidth * 0.15 ? maxBinHeight * 0.76 : null;
-            }),
-            borderColor: '#e74c3c',
-            borderWidth: 2.5,
-            borderDash: [8, 4],
-            pointRadius: 0,
-            fill: false,
-            type: 'line'
-        });
-    }
-
-    // Add Target line
-    if (specType === 'bilateral') {
-        datasets.push({
-            label: `Target: ${formatNumber(target, decimals)}`,
-            data: labels.map(label => {
-                const val = parseFloat(label);
-                const diff = Math.abs(val * 1 - target);
-                return diff < binWidth * 0.15 ? maxBinHeight * 0.70 : null;
-            }),
-            borderColor: '#f39c12',
-            borderWidth: 2,
-            borderDash: [6, 3],
-            pointRadius: 0,
-            fill: false,
-            type: 'line'
-        });
-    }
+    // Prepare x-axis labels for normal curve
+    const normalCurveLabels = curvePoints.map(p => formatNumber(p.x, Math.max(1, decimals)));
 
     histogramChart = new Chart(ctx, {
         type: 'bar',
@@ -752,37 +713,41 @@ function updateHistogram(values, lsl, usl, decimals, minVal, maxVal, forceRange)
                 legend: {
                     display: true,
                     position: 'top',
-                    maxHeight: 60,
+                    maxHeight: 50,
                     labels: {
-                        font: { size: 10, weight: 'bold' },
+                        font: { size: 11, weight: 'bold' },
                         usePointStyle: true,
-                        padding: 12
+                        padding: 15,
+                        color: '#333'
                     }
                 },
                 tooltip: {
                     enabled: true,
-                    backgroundColor: 'rgba(0,0,0,0.85)',
+                    backgroundColor: 'rgba(0,0,0,0.9)',
                     titleColor: '#fff',
                     bodyColor: '#fff',
-                    borderColor: 'rgba(255,255,255,0.2)',
+                    borderColor: 'rgba(255,255,255,0.3)',
                     borderWidth: 1,
-                    titleFont: { size: 12, weight: 'bold' },
-                    bodyFont: { size: 11 },
-                    padding: 10,
+                    titleFont: { size: 13, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    padding: 12,
                     callbacks: {
                         title: function(context) {
-                            const idx = context[0].dataIndex;
-                            const lower = binEdges[idx];
-                            const upper = binEdges[idx + 1];
-                            return `Range: ${formatNumber(lower, decimals)} - ${formatNumber(upper, decimals)}`;
+                            if (context[0].dataset.type === 'bar') {
+                                const idx = context[0].dataIndex;
+                                const lower = binEdges[idx];
+                                const upper = binEdges[idx + 1];
+                                return `${t('histogramHeader')}: ${formatNumber(lower, decimals)} - ${formatNumber(upper, decimals)}`;
+                            }
+                            return context[0].dataset.label || '';
                         },
                         label: function(context) {
                             if (!context.dataset.type || context.dataset.type === 'bar') {
                                 const value = context.parsed.y;
                                 const pct = ((value / n) * 100).toFixed(1);
-                                return `Count: ${value} (${pct}%)`;
+                                return `${t('frequency')}: ${value} (${pct}%)`;
                             }
-                            return context.dataset.label || '';
+                            return '';
                         }
                     }
                 }
@@ -791,20 +756,24 @@ function updateHistogram(values, lsl, usl, decimals, minVal, maxVal, forceRange)
                 x: {
                     title: {
                         display: true,
-                        text: 'Measured Value',
-                        font: { weight: 'bold', size: 12 }
+                        text: t('measuredValue'),
+                        font: { weight: 'bold', size: 13, color: '#333' },
+                        color: '#333'
                     },
-                    grid: { color: 'rgba(0,0,0,0.05)' }
+                    grid: { color: 'rgba(0,0,0,0.08)', drawBorder: true },
+                    ticks: { font: { size: 10 } }
                 },
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Frequency',
-                        font: { weight: 'bold', size: 12 }
+                        text: t('frequency'),
+                        font: { weight: 'bold', size: 13, color: '#333' },
+                        color: '#333'
                     },
-                    grid: { color: 'rgba(0,0,0,0.05)' },
-                    suggestedMax: maxBinHeight * 1.1
+                    grid: { color: 'rgba(0,0,0,0.08)' },
+                    ticks: { font: { size: 10 } },
+                    suggestedMax: maxBinHeight * 1.15
                 }
             }
         }
@@ -815,15 +784,16 @@ function updateHistogram(values, lsl, usl, decimals, minVal, maxVal, forceRange)
 
 // ========== MODAL FUNCTIONS ==========
 function showStatInfo(statName) {
-    const info = statInfo[statName];
-    if (!info) return;
-
-    document.getElementById('infoModalTitle').textContent = `📊 Information: ${statName}`;
+    const titles = t('statsTitles');
+    const explanations = t('statsExplanations');
+    const title = titles[statName] || statName;
+    const explanation = explanations[statName] || t('statsTitles')[statName] || '';
+    
+    document.getElementById('infoModalTitle').textContent = `📊 ${title}`;
     document.getElementById('infoModalBody').innerHTML = `
         <div style="padding: 20px;">
-            <h5 style="color: #667eea;">${info.title}</h5>
-            <p style="font-size: 14px; line-height: 1.6;">${info.explanation}</p>
-            ${info.formula ? `<hr><p><strong>Formula:</strong><br><code style="background: #f8f9fa; padding: 8px; border-radius: 4px; display: block;">${info.formula}</code></p>` : ''}
+            <h5 style="color: #667eea;">${title}</h5>
+            <p style="font-size: 14px; line-height: 1.6;">${explanation}</p>
         </div>
     `;
 
@@ -832,17 +802,17 @@ function showStatInfo(statName) {
 }
 
 function showSpecTypeInfo() {
-    document.getElementById('infoModalTitle').textContent = 'ℹ️ Specification Types Information';
+    document.getElementById('infoModalTitle').textContent = `ℹ️ ${t('specTypeTitle')}`;
     document.getElementById('infoModalBody').innerHTML = `
         <div style="padding: 20px;">
-            <h5 style="color: #667eea;">Specification Types:</h5>
-            <p><strong>Bilateral (LSL and USL)</strong>: Both lower and upper specification limits are defined.<br>
-            • Example: Diameter must be between 10.0 and 10.2 mm</p>
-            <p><strong>Unilateral LSL only</strong>: Only lower specification limit is defined.<br>
-            • Example: Strength must be at least 100 MPa (no upper limit)</p>
-            <p><strong>Unilateral USL only</strong>: Only upper specification limit is defined.<br>
-            • Example: Impurity must be no more than 0.5% (no lower limit)</p>
-            <p><i>Select the type that matches your process requirements.</i></p>
+            <h5 style="color: #667eea;">${t('specTypeTitle')}</h5>
+            <p><strong>${t('bilateral')}</strong>: ${t('bilateral_info')}<br>
+            • ${t('bilateral_example')}</p>
+            <p><strong>${t('unilateralLSL')}</strong>: ${t('unilateralLSL_info')}<br>
+            • ${t('unilateralLSL_example')}</p>
+            <p><strong>${t('unilateralUSL')}</strong>: ${t('unilateralUSL_info')}<br>
+            • ${t('unilateralUSL_example')}</p>
+            <p><i>${t('specTypeSelectHint')}</i></p>
         </div>
     `;
 
