@@ -297,15 +297,15 @@ function createCenterColumn() {
                 <div class="row mb-3">
                     <div class="col-6">
                         <div class="d-flex align-items-center mb-2">
-                            <span class="stat-label">StdDev(Overall)</span>
-                            <button class="info-btn" onclick="showStatInfo('StdDev(Overall)')">ℹ</button>
+                            <span class="stat-label">StdDev (Overall)</span>
+                            <button class="info-btn" onclick="showStatInfo('StdDev (Overall)')">ℹ</button>
                         </div>
                         <div class="stat-card" id="stdOverallValue">N/A</div>
                     </div>
                     <div class="col-6">
                         <div class="d-flex align-items-center mb-2">
-                            <span class="stat-label">StdDev(Within)</span>
-                            <button class="info-btn" onclick="showStatInfo('StdDev(Within)')">ℹ</button>
+                            <span class="stat-label">StdDev (Within)</span>
+                            <button class="info-btn" onclick="showStatInfo('StdDev (Within)')">ℹ</button>
                         </div>
                         <div class="stat-card" id="stdWithinValue">N/A</div>
                     </div>
