@@ -246,15 +246,17 @@ function calculateAndDisplayStatistics(values, lsl, usl, targetCpk, subgroupSize
     updateStatisticDisplay('meanValue', meanVal, decimals);
     updateStatisticDisplay('nValue', n, 0);
     updateStatisticDisplay('meanToTargetValue', meanToTarget, decimals);
-    updateStatisticDisplay('stdOverallValue', stdDevOverall, decimals);
-    updateStatisticDisplay('stdWithinValue', stdDevWithin, decimals);
+    // StdDev fields: show with higher precision (7 decimals)
+    updateStatisticDisplay('stdOverallValue', stdDevOverall, 7);
+    updateStatisticDisplay('stdWithinValue', stdDevWithin, 7);
 
-    updateStatisticDisplay('cpValue', cp, decimals);
-    updateStatisticDisplay('cpkValue', cpk, decimals);
-    updateStatisticDisplay('ppValue', pp, decimals);
-    updateStatisticDisplay('ppkValue', ppk, decimals);
-    updateStatisticDisplay('cpuValue', cpu, decimals);
-    updateStatisticDisplay('cplValue', cpl, decimals);
+    // Capability indices: show with maximum 2 decimals
+    updateStatisticDisplay('cpValue', cp, 2);
+    updateStatisticDisplay('cpkValue', cpk, 2);
+    updateStatisticDisplay('ppValue', pp, 2);
+    updateStatisticDisplay('ppkValue', ppk, 2);
+    updateStatisticDisplay('cpuValue', cpu, 2);
+    updateStatisticDisplay('cplValue', cpl, 2);
     updateStatisticDisplay('kValue', kValue, 2);
     updateStatisticDisplay('crValue', crValue, decimals);
 }
