@@ -733,17 +733,7 @@ function updateHistogram(values, lsl, usl, decimals, minVal, maxVal, forceRange)
                             };
                         }
 
-                        if (specType === 'bilateral') {
-                            a.targetLine = {
-                                type: 'line',
-                                xMin: target,
-                                xMax: target,
-                                borderColor: '#f39c12',
-                                borderWidth: 2,
-                                borderDash: [6,3],
-                                label: { enabled: true, content: `Target: ${formatNumber(target, Math.max(3, decimals))}`, position: 'center', backgroundColor: '#f39c12', color: '#000', yAdjust: -8, font: { weight: '600' } }
-                            };
-                        }
+                        // Target vertical line intentionally removed to match requested layout.
 
                         return a;
                     })()
